@@ -1,0 +1,16 @@
+# Normalize line endings across platforms
+* text=auto
+
+# Windows-specific scripts keep CRLF
+*.ps1 text eol=crlf
+
+# Cross-platform text files use LF
+*.py   text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf
+
+# Binary files — never touch
+*.pyd binary
+*.o   binary
+*.obj binary

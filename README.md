@@ -1,10 +1,10 @@
-# pyd_building
+# PYD Builder for Python 3.11 on Windows x64
 
 **A reusable template for building Windows Python extension modules (`.pyd`)
 using GNU tools (MinGW/GCC) inside conda — no administrator rights required.**
 
-Compile Python (via Cython), C, or C++ sources into importable `.pyd` modules,
-entirely on one machine, without needing admin to install a toolchain.
+Compile Python (via Cython), C, or C++ sources into importable `.pyd` modules on
+one machine for use on any other Windows machine with a Python 3.11.* environment.  The use of GNU tools instead of Microsoft Visual Studio build tools or extension eliminates any need for administrator credentials or admin-only installable tools.
 
 ---
 
@@ -34,17 +34,13 @@ compiler shim to work.
 
 ## Why This Exists
 
-On Windows, Python normally expects the MSVC toolchain to build extensions —
-which typically requires admin rights to install. This template uses **conda**
-to provide a complete, modern **GNU toolchain (GCC 15.2, UCRT)** plus the Python
-import library, all installed at the user level. No admin needed.
+On Windows, Python normally expects the MSVC toolchain (VS Build Tools) to build extensions, which always requires admin rights to install. This template uses **conda** to provide a complete, modern **GNU toolchain (GCC 15.2, UCRT)** plus the Python import library, all installed at the user level without the need for administrator credentials.
 
 ---
 
 ## Requirements
 
-**Summary:** conda, Windows x64, no admin, and **CPython 3.11.x** for running
-compiled modules.
+**Summary:** conda, Windows x64, and **CPython 3.11.x** for running compiled modules.
 
 See **[REQUIREMENTS.md](REQUIREMENTS.md)** for the complete specification,
 including the strict Python-version rule and build vs. runtime requirements.
@@ -96,7 +92,7 @@ is unset or points at the wrong environment).
    name it what you want to `import` (must be a valid Python identifier).
    Drop multiple `.py` files in `src/` and each becomes its own `.pyd`.
    ```
-   src\my_module.py   →   import my_module
+   src\python_module.py   →   import python_module
    ```
 
 2. **Build:**
@@ -135,10 +131,10 @@ on a machine without the environment:
 This creates a `dist/` folder containing the `.pyd` and its required GNU runtime
 DLLs. Copy the whole `dist/` folder to the target machine and run from within it.
 
-> **Basic helper:** For pure Cython/C modules this is usually unnecessary (they
-> need only `python311.dll`, present wherever Python 3.11 runs). For
+> **Basic helper:** For pure Cython/C modules this is **usually unnecessary**, they
+> need only `python311.dll` present wherever Python 3.11 runs. For
 > production-scale distribution, consider a dedicated tool like `delvewheel`.
-> The target machine still needs **CPython 3.11.x** (see [REQUIREMENTS.md](REQUIREMENTS.md)).
+> Note that the target machine still requires **CPython 3.11.x** (see [REQUIREMENTS.md](REQUIREMENTS.md)).
 
 ---
 
@@ -167,7 +163,7 @@ REBUILD.md    How to recreate the environment (READ THIS FIRST)
 - **[REQUIREMENTS.md](REQUIREMENTS.md)** — Full requirements; the strict Python
   3.11.x rule, build vs. runtime needs.
 - **[REBUILD.md](REBUILD.md)** — Recreate the build environment, including the
-  critical compiler shim step. **Start here.**
+  critical compiler shim step. **START HERE.**
 - **[docs/PYD_Workflow_Guide.md](docs/PYD_Workflow_Guide.md)** — What you can and
   cannot change (filenames, module names, etc.) and common gotchas.
 - **[docs/Compiling_Guidance.md](docs/Compiling_Guidance.md)** — When compiling
@@ -184,7 +180,7 @@ REBUILD.md    How to recreate the environment (READ THIS FIRST)
   baked into the binary. Rename the **source** file and rebuild instead.
 - **Keep all work inside the conda env.** Do not build in an MSYS2 shell or
   against system Python — it causes ABI mismatches.
-- **This is Windows x64 specific.** A `.pyd` built here won't run on Linux/macOS.
+- **This is Windows x64 specific.** A `.pyd` built here will not run on Linux or macOS.
 
 ---
 

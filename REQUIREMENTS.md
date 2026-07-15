@@ -5,10 +5,10 @@ this template, and for **running** the compiled modules it produces.
 
 ---
 
-## ⚠️ Python Version — STRICT: CPython 3.11.x Only
+## ⚠️ Python Version — STRICT: CPython 3.11.x ONLY
 
 The compiled `.pyd` modules produced (and the included example) are built for
-**CPython 3.11** and will **only** import into a **CPython 3.11.x** interpreter.
+**CPython 3.11** and will **ONLY** import into a **CPython 3.11.x** interpreter.  In other words, it works under Python 3.11.* only.
 
 | Target Python | Works? |
 |---------------|--------|
@@ -30,7 +30,7 @@ limitation of this template.
 
 **To target a different Python version:** rebuild everything under an
 environment of that version (e.g., create a Python 3.12 conda env with the
-toolchain, then rebuild — the output would be tagged `cp312` and require 3.12).
+toolchain, then rebuild — the output would be tagged `cp312` and require Python 3.12.*).
 
 ---
 
@@ -42,8 +42,7 @@ To **build** `.pyd` modules with this template:
 |-------------|---------|
 | conda | Miniconda or Anaconda |
 | OS | Windows x64 |
-| Admin rights | **Not required** |
-| PowerShell | For `build.ps1` |
+| PowerShell (preferably v7.x) | TO run `build.ps1` |
 | Build environment | See [REBUILD.md](REBUILD.md) and [env/](env/) |
 
 The build environment provides:

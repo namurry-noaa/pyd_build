@@ -53,6 +53,7 @@ Full setup — including the **required compiler shim** — is documented in
 **[REBUILD.md](REBUILD.md)**. Read that first.
 
 Environment definitions live in **[env/](env/)**:
+
 - `env/environment.yml` — portable recipe (`--from-history`)
 - `env/py_pyd_modern_lock.yml` — exact lockfile (all resolved versions)
 
@@ -94,14 +95,23 @@ is unset or points at the wrong environment).
    ```
    src\python_module.py   →   import python_module
    ```
-
 2. **Build:**
    ```powershell
    conda activate py_pyd_modern
    .\build.ps1
    ```
-
 3. **Collect** the compiled `.pyd` from **`compiled/`**.
+
+> ⚠️ **`build.ps1` performs a CLEAN build every run.** Before compiling, it
+> **deletes all existing `.pyd` files from `compiled/`** (and clears any stale
+> `.pyd` from the project root), then force-recompiles. This guarantees
+> `compiled/` always contains exactly the current build's output — no stale or
+> leftover modules.
+>
+> **What this means for you:** `compiled/` is a build *output* directory, not a
+> storage location. Do not keep anything in `compiled/` you aren't willing to
+> lose on the next build. If you need to archive a specific `.pyd`, copy it
+> somewhere else first.
 
 ---
 
@@ -118,23 +128,44 @@ functions — demonstrating the full flow from source to importable module.
 
 ---
 
-## Distributing a C++ .pyd Outside the Environment
+## Distributing a `.pyd` Outside the Build Environment
+
+**When do you need this?** Only when you will run a compiled `.pyd` on a machine
+or in a folder that does **not** have the conda build environment active.
+
+Use this decision guide:
+
+| Your module is... | Running where? | Do you need to bundle? |
+|-------------------|----------------|------------------------|
+| Pure Cython (`.py`) or C | Anywhere with CPython 3.11.x | **No** — needs only `python311.dll` |
+| **C++** | Inside the conda env | **No** — DLLs are already on the path |
+| **C++** | Outside the env (another machine/folder) | **Yes** — bundle the GNU runtime DLLs |
 
 C++ modules depend on GNU runtime DLLs (`libstdc++-6.dll`,
-`libgcc_s_seh-1.dll`) that live in the build environment. To run a C++ `.pyd`
-on a machine without the environment:
+`libgcc_s_seh-1.dll`) that live in the build environment. Outside that
+environment they won't be found, and the import will fail. Bundling copies them
+next to the `.pyd`.
+
+**How to bundle:**
 
 ```powershell
 .\bundle_dlls.ps1 compiled\your_module.cp311-win_amd64.pyd
 ```
 
 This creates a `dist/` folder containing the `.pyd` and its required GNU runtime
-DLLs. Copy the whole `dist/` folder to the target machine and run from within it.
+DLLs. **Copy the whole `dist/` folder to the target machine and run from within
+it — the DLLs must sit alongside the `.pyd` wherever it runs.**
 
-> **Basic helper:** For pure Cython/C modules this is **usually unnecessary**, they
-> need only `python311.dll` present wherever Python 3.11 runs. For
-> production-scale distribution, consider a dedicated tool like `delvewheel`.
-> Note that the target machine still requires **CPython 3.11.x** (see [REQUIREMENTS.md](REQUIREMENTS.md)).
+> **Notes:**
+> - Bundling is a **separate, deliberate step** — the normal `build.ps1` does
+>   *not* bundle. Reach for `bundle_dlls.ps1` only when you're shipping a C++
+>   module out of the environment.
+> - Bundling a pure Cython/C module is harmless but unnecessary — it only adds
+>   files those modules never use.
+> - The target machine still requires **CPython 3.11.x** (see
+>   [REQUIREMENTS.md](REQUIREMENTS.md)).
+> - For production-scale distribution, consider a dedicated tool like
+>   `delvewheel`.
 
 ---
 
@@ -142,13 +173,14 @@ DLLs. Copy the whole `dist/` folder to the target machine and run from within it
 
 ```
 src/          Sources to compile (filename = module name)
-compiled/     Deliverable .pyd output (the example .pyd is committed here)
+compiled/     Deliverable .pyd output — CLEARED and repopulated each build
+              (the example .pyd is committed here)
 build/        Transient build artifacts — regenerated each build (gitignored)
 dist/         Bundled distributable output from bundle_dlls.ps1 (gitignored)
 env/          conda environment definitions (recipe + lockfile)
 docs/         Guidance documents
 .vscode/      IntelliSense configuration
-build.ps1     Build script (compiles, then moves .pyd to compiled/)
+build.ps1     Clean-builds: clears compiled/, force-recompiles, moves .pyd to compiled/
 bundle_dlls.ps1    Bundles a C++ .pyd's runtime DLLs into dist/
 setup.py      Build recipe (Cython + setuptools; compiles all src/*.py)
 example_usage.py   Demonstrates importing the compiled module

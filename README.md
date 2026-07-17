@@ -8,30 +8,6 @@ one machine for use on any other Windows machine with a Python 3.11.* environmen
 
 ---
 
-## Quick Start
-
-```powershell
-# 1. Create + activate the build environment (one-time — see REBUILD.md for the
-#    required compiler shim step)
-conda create -n py_pyd_modern -c conda-forge python=3.11 libpython gcc_win-64 gxx_win-64 cython
-conda activate py_pyd_modern
-
-# 2. Put your Python source in src/ (filename = module name)
-#    Then build:
-.\build.ps1
-
-# 3. Your compiled .pyd is in compiled/. Try the included example:
-python example_usage.py
-```
-
-**First time?** Read [REBUILD.md](REBUILD.md) — the environment needs a one-time
-compiler shim to work.
-
-> ⚠️ **Compiled modules require CPython 3.11.x specifically.** See
-> [REQUIREMENTS.md](REQUIREMENTS.md).
-
----
-
 ## Why Compile to a `.pyd`?
 
 Compiling a Python module to a `.pyd` turns your source into a binary extension
@@ -56,6 +32,30 @@ and when it isn't.
 ## Why This Exists
 
 On Windows, Python normally expects the MSVC toolchain (VS Build Tools) to build extensions, which always requires admin rights to install. This template uses **conda** to provide a complete, modern **GNU toolchain (GCC 15.2, UCRT)** plus the Python import library, all installed at the user level without the need for administrator credentials.
+
+---
+
+## Quick Start
+
+```powershell
+# 1. Create + activate the build environment (one-time — see REBUILD.md for the
+#    required compiler shim step)
+conda create -n py_pyd_modern -c conda-forge python=3.11 libpython gcc_win-64 gxx_win-64 cython
+conda activate py_pyd_modern
+
+# 2. Put your Python source in src/ (filename = module name)
+#    Then build:
+.\build.ps1
+
+# 3. Your compiled .pyd is in compiled/. Try the included example:
+python example_usage.py
+```
+
+**First time?** Read [REBUILD.md](REBUILD.md) — the environment needs a one-time
+compiler shim to work.
+
+> ⚠️ **Compiled modules require CPython 3.11.x specifically.** See
+> [REQUIREMENTS.md](REQUIREMENTS.md).
 
 ---
 
@@ -183,6 +183,8 @@ it — the DLLs must sit alongside the `.pyd` wherever it runs.**
 >   module out of the environment.
 > - Bundling a pure Cython/C module is harmless but unnecessary — it only adds
 >   files those modules never use.
+> - If a module needs the GNU runtimes but detection reports none, re-run with
+>   `-ForceBundle` to copy all candidate DLLs regardless of detection.
 > - The target machine still requires **CPython 3.11.x** (see
 >   [REQUIREMENTS.md](REQUIREMENTS.md)).
 > - For production-scale distribution, consider a dedicated tool like

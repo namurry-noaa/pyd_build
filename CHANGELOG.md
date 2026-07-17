@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 This project uses [Semantic Versioning](https://semver.org/).
 
+## [2.2.1] - 2026-07-17
+### Changed
+- README reorganized so the "Why Compile to a `.pyd`?" and "Why This Exists"
+  sections lead, ahead of Quick Start — giving new readers the purpose and
+  rationale before the commands. Also documented the `-ForceBundle` option in
+  the distribution section.
+
 ## [2.2.0] - 2026-07-17
 ### Added
 - `bundle_dlls.ps1` gains a `-ForceBundle` switch that copies all candidate GNU

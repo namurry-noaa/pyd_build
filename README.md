@@ -32,6 +32,27 @@ compiler shim to work.
 
 ---
 
+## Why Compile to a `.pyd`?
+
+Compiling a Python module to a `.pyd` turns your source into a binary extension
+module — one you `import` exactly like any normal Python module, but that ships
+as compiled machine code rather than readable `.py` source. Common reasons to do
+this:
+
+- **Protect source.** The distributed `.pyd` is compiled binary, not human-readable
+  `.py` — useful when sharing a module without exposing the source.
+- **Performance.** Cython-compiled code can run faster than pure Python for
+  compute-heavy work.
+- **Clean distribution.** Ship a single importable binary module instead of
+  loose source files.
+- **Bridge C/C++.** Compile C or C++ directly into an importable Python module.
+
+Compiling isn't always the right call — see
+[docs/Compiling_Guidance.md](docs/Compiling_Guidance.md) for when it's worthwhile
+and when it isn't.
+
+---
+
 ## Why This Exists
 
 On Windows, Python normally expects the MSVC toolchain (VS Build Tools) to build extensions, which always requires admin rights to install. This template uses **conda** to provide a complete, modern **GNU toolchain (GCC 15.2, UCRT)** plus the Python import library, all installed at the user level without the need for administrator credentials.

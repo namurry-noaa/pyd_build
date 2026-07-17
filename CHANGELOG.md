@@ -4,6 +4,25 @@ All notable changes to this project are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 This project uses [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-07-17
+### Added
+- `bundle_dlls.ps1` gains a `-ForceBundle` switch that copies all candidate GNU
+  runtime DLLs present in the environment, bypassing `objdump` import detection.
+  This is an escape hatch for cases where a module needs the runtimes but
+  detection reports none. (Note: still limited to the script's candidate DLL
+  list — a dependency outside that list is not copied even with `-ForceBundle`.)
+
+### Changed
+- `bundle_dlls.ps1` "runs standalone" message softened: it no longer over-states
+  the conclusion, clarifies that it is based on `objdump` detection, and points
+  users to `-ForceBundle` when they know runtimes are needed anyway.
+
+### Documentation
+- README: added a "Why Compile to a `.pyd`?" section ahead of "Why This Exists,"
+  explaining the purpose of compiling (source protection, performance, clean
+  distribution, bridging C/C++) and deferring depth to
+  `docs/Compiling_Guidance.md`.
+
 ## [2.1.1] - 2026-07-16
 ### Fixed
 - `build.ps1` no longer emits a false "No freshly-built .pyd found" warning on

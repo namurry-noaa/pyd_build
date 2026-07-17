@@ -3,6 +3,9 @@
 # so a C++ .pyd can run OUTSIDE the conda environment.
 #
 # Usage:   .\bundle_dlls.ps1 compiled\your_module.cp311-win_amd64.pyd
+#          .\bundle_dlls.ps1 compiled\your_module.cp311-win_amd64.pyd -Clean
+#          .\bundle_dlls.ps1 compiled\your_module.cp311-win_amd64.pyd -ForceBundle
+#
 # Output:  creates dist/ containing the .pyd + its required runtime DLLs
 #
 # Run from the project root with py_pyd_modern ACTIVE.
@@ -11,9 +14,20 @@
 # MULTI-MODULE: You can run this repeatedly for several .pyd files into the SAME
 #       dist/. Each .pyd is added; shared runtime DLLs already present are SKIPPED
 #       (not re-copied), so dist/ ends up with one copy of each needed DLL.
+# -Clean: Wipes dist/ contents before bundling, for a fresh single- or
+#       multi-module bundle with no leftover files from previous runs.
+# -ForceBundle: Copies ALL candidate runtime DLLs that exist in the env,
+#       bypassing objdump import detection. Use as an escape hatch when you
+#       know a module needs the GNU runtimes but detection reports none.
+#       NOTE: still limited to the candidate DLL list below — a dependency
+#       outside that list is not copied even with -ForceBundle.
 param(
     [Parameter(Mandatory=$true)]
-    [string]$PydPath
+    [string]$PydPath,
+
+    [switch]$Clean,
+
+    [switch]$ForceBundle
 )
 $ErrorActionPreference = "Stop"
 
@@ -47,20 +61,43 @@ if (-not $deps) {
 Write-Host "Detected imports:" -ForegroundColor Gray
 $deps | ForEach-Object { Write-Host "  $_" }
 
-# Prepare dist/ output folder
-if (-not (Test-Path "dist")) { New-Item -ItemType Directory -Path "dist" | Out-Null }
+if ($ForceBundle) {
+    Write-Host "`n-ForceBundle specified: copying all candidate runtime DLLs regardless of detection." -ForegroundColor Yellow
+}
 
-# Copy the .pyd itself (always refresh it)
+# Prepare dist/ output folder
+if (-not (Test-Path "dist")) {
+    New-Item -ItemType Directory -Path "dist" | Out-Null
+}
+
+# -Clean: wipe dist/ contents first for a fresh bundle (opt-in)
+if ($Clean) {
+    $existing = Get-ChildItem "dist\*" -File
+    if ($existing.Count -gt 0) {
+        Write-Host "`nNOTICE: -Clean specified. Clearing all existing files from dist/." -ForegroundColor Yellow
+        $existing | ForEach-Object {
+            Write-Host ("  Removing: {0}" -f $_.Name) -ForegroundColor DarkGray
+            Remove-Item $_.FullName -Force
+        }
+    }
+}
+
+# Copy the .pyd itself (always refresh it; notify if replacing an existing one)
+$destPyd = Join-Path "dist" (Split-Path $PydPath -Leaf)
+if (Test-Path $destPyd) {
+    Write-Host ("`nNOTICE: Replacing existing {0} in dist\." -f (Split-Path $PydPath -Leaf)) -ForegroundColor Yellow
+}
 Copy-Item $PydPath -Destination "dist\" -Force
 Write-Host "`nCopied .pyd -> dist\" -ForegroundColor Green
 
-# Copy any required GNU runtime DLLs that exist in the env.
+# Copy the required GNU runtime DLLs that exist in the env.
+# Normally only DLLs the .pyd imports (per objdump) are copied; -ForceBundle
+# overrides detection and copies every candidate that exists in the env.
 # Skip DLLs already present in dist/ so multi-module runs don't re-copy shared runtimes.
 $copiedCount  = 0
 $skippedCount = 0
 foreach ($dll in $candidateDlls) {
-    # Only handle DLLs the .pyd actually imports (or fallback said so)
-    if ($deps -contains $dll) {
+    if ($ForceBundle -or ($deps -contains $dll)) {
         $destDll = Join-Path "dist" $dll
         if (Test-Path $destDll) {
             Write-Host "Already present, skipped: $dll" -ForegroundColor DarkGray
@@ -79,8 +116,9 @@ foreach ($dll in $candidateDlls) {
 }
 
 if (($copiedCount -eq 0) -and ($skippedCount -eq 0)) {
-    Write-Host "`nNo GNU runtime DLLs needed bundling — this .pyd likely runs standalone" -ForegroundColor Yellow
-    Write-Host "(pure Cython/C modules typically only need python3XX.dll, present wherever Python runs)." -ForegroundColor Yellow
+    Write-Host "`nNo GNU runtime DLLs from the candidate list were detected as imports." -ForegroundColor Yellow
+    Write-Host "This .pyd likely runs standalone (pure Cython/C modules typically need only python3XX.dll)." -ForegroundColor Yellow
+    Write-Host "If you know it needs runtimes anyway, re-run with -ForceBundle to copy all candidates." -ForegroundColor Yellow
 }
 
 Write-Host "`n=== dist/ contents ===" -ForegroundColor Cyan

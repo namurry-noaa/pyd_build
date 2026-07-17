@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 This project uses [Semantic Versioning](https://semver.org/).
 
+## [2.2.3] - 2026-07-17
+### Fixed
+- Restored the correct example module `compiled/cython_test_module.cp311-win_amd64.pyd`
+  (the one referenced by `README.md` and `example_usage.py`) and removed a stray
+  leftover test artifact, `compiled/cython_test_module_2.cp311-win_amd64.pyd`,
+  that had been committed by mistake since an early commit. `compiled/` now
+  contains exactly the single canonical example module.
+
 ## [2.2.2] - 2026-07-17
 ### Fixed
 - README: corrected the Requirements summary from "Cython 3.11.x" back to

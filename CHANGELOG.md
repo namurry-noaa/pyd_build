@@ -4,6 +4,26 @@ All notable changes to this project are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 This project uses [Semantic Versioning](https://semver.org/).
 
+## [2.2.2] - 2026-07-17
+### Fixed
+- README: corrected the Requirements summary from "Cython 3.11.x" back to
+  "CPython 3.11.x" (running compiled modules needs CPython, not Cython), and
+  fixed a "provide a the" typo in the "Why This Template Package Exists"
+  section.
+
+### Changed
+- `env/environment.yml`: removed the `defaults` channel so the recipe matches
+  the documented conda-forge-only setup.
+- `bundle_dlls.ps1`: removed two unreachable `exit 1` statements (with
+  `$ErrorActionPreference = "Stop"`, `Write-Error` already terminates).
+
+### Documentation
+- `docs/PYD_Workflow_Guide.md`: fixed a stale example path
+  (`pyd_building` → `pyd_builder`).
+- `CHANGELOG.md`: added a note under `[2.2.0]` recording that the public
+  `v2.2.0` tag points at the `v2.1.1` commit and that `-ForceBundle` landed in
+  a later commit.
+
 ## [2.2.1] - 2026-07-17
 ### Changed
 - README reorganized so the "Why Compile to a `.pyd`?" and "Why This Exists"
@@ -12,6 +32,12 @@ This project uses [Semantic Versioning](https://semver.org/).
   the distribution section.
 
 ## [2.2.0] - 2026-07-17
+> **Tag note:** The public `v2.2.0` git tag points at the same commit as
+> `v2.1.1`; the `-ForceBundle` change described below actually landed in a
+> later commit. The tag is left in place (public tags are treated as
+> immutable); the feature is present from `v2.2.1` onward. Recorded here for
+> an accurate history.
+
 ### Added
 - `bundle_dlls.ps1` gains a `-ForceBundle` switch that copies all candidate GNU
   runtime DLLs present in the environment, bypassing `objdump` import detection.

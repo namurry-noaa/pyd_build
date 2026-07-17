@@ -33,14 +33,12 @@ $ErrorActionPreference = "Stop"
 
 if (-not (Test-Path $PydPath)) {
     Write-Error "File not found: $PydPath"
-    exit 1
 }
 
 # Where the env's runtime DLLs live
 $envBin = Join-Path $env:CONDA_PREFIX "Library\bin"
 if (-not (Test-Path $envBin)) {
     Write-Error "Cannot find env Library\bin. Is py_pyd_modern activated? (CONDA_PREFIX=$env:CONDA_PREFIX)"
-    exit 1
 }
 
 # The GNU runtime DLLs a GCC/G++-built .pyd may depend on

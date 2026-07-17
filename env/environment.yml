@@ -1,7 +1,6 @@
 name: py_pyd_modern
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - cython
   - libpython

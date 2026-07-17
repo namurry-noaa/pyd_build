@@ -3,20 +3,16 @@
 **A template package for building Windows Python extension modules (`.pyd`)
 using GNU tools (MinGW/GCC) inside conda — no administrator rights required.**
 
-Compile Python (via Cython), C, or C++ sources into importable `.pyd` modules on
-one machine for use on any other Windows machine with a Python 3.11.* environment.  The use of GNU tools instead of Microsoft Visual Studio build tools or extension eliminates any need for administrator credentials or admin-only installable tools.
+Compile Python (via Cython), C, or C++ sources into importable `.pyd` modules on one machine for use on any other Windows machine with a Python 3.11.* environment.  The use of GNU tools instead of Microsoft Visual Studio build tools or extension eliminates any need for administrator credentials or admin-only installable tools.
 
 ---
 
 ## Why Compile to a `.pyd`?
 
 Compiling a Python module to a `.pyd` turns your source into a binary extension
-module — one you `import` exactly like any normal Python module, but that ships
-as compiled machine code rather than readable `.py` source. Common reasons to do
-this:
+module, one you `import` exactly like any normal Python module.  The difference is that it ships as compiled machine code rather than a readable *.py file.  Common reasons to do this include:
 
-- **Protect source.** The distributed `.pyd` is compiled binary, not human-readable
-  `.py` — useful when sharing a module without exposing the source.
+- **Protect source.** The distributed `.pyd` is compiled binary, not human-readable *.py — useful when sharing a module without exposing the source.
 - **Performance.** Cython-compiled code can run faster than pure Python for
   compute-heavy work.
 - **Clean distribution.** Ship a single importable binary module instead of
@@ -24,14 +20,13 @@ this:
 - **Bridge C/C++.** Compile C or C++ directly into an importable Python module.
 
 Compiling isn't always the right call — see
-[docs/Compiling_Guidance.md](docs/Compiling_Guidance.md) for when it's worthwhile
-and when it isn't.
+[docs/Compiling_Guidance.md](docs/Compiling_Guidance.md) for when it is worthwhile and when it is not.
 
 ---
 
-## Why This Exists
+## Why This Template Package Exists
 
-On Windows, Python normally expects the MSVC toolchain (VS Build Tools) to build extensions, which always requires admin rights to install. This template uses **conda** to provide a complete, modern **GNU toolchain (GCC 15.2, UCRT)** plus the Python import library, all installed at the user level without the need for administrator credentials.
+On Windows, Python normally expects the MSVC toolchain (VS Build Tools) to build extensions, which requires local admin rights to install. This template uses a conda environment to provide the **GNU toolchain (GCC 15.2, UCRT)** and Python import library - all installed at the user level without the need for administrator credentials.
 
 ---
 
@@ -61,7 +56,7 @@ compiler shim to work.
 
 ## Requirements
 
-**Summary:** conda, Windows x64, and **CPython 3.11.x** for running compiled modules.
+**Summary:** conda (preferred), Windows x64, and **CPython 3.11.x** for running compiled modules.
 
 See **[REQUIREMENTS.md](REQUIREMENTS.md)** for the complete specification,
 including the strict Python-version rule and build vs. runtime requirements.

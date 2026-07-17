@@ -74,7 +74,7 @@ own .pyd. One file = one module.
        e.g., src\coord_xform.py
 2. Build:
        conda activate py_pyd_modern
-       cd <project>\pyd_building
+       cd <project>\pyd_builder
        .\build.ps1
    (or use the Conda PyD Build terminal, which auto-activates the env)
 3. Collect the .pyd from compiled/.
